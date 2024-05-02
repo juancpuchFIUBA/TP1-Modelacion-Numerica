@@ -14,7 +14,7 @@ TEMPERATURA_IZQUIERDA = 30
 TEMPERATURA_DERECHA = 72
 LARGO_PLANCHA = 5
 ANCHO_PLANCHA = 4
-DISCRETIZACION = 1
+DISCRETIZACION = 0.5
 TOLERANCIA = 0.0000001
 
 HORARIOS = [0,5,9,15,20,23]
@@ -164,6 +164,7 @@ def sustitucion_inversa(matrix, vector, dimension):
     return x
 
 def resolucion_por_gauss (largo, ancho, temperatura_izquierda):
+
     dimension = largo * ancho
     A = crear_matriz_A(largo, ancho)
     b = crear_vector_b(largo, ancho, temperatura_izquierda)
@@ -261,7 +262,14 @@ def crear_graficos_de_plancha (largo, ancho):
     x_temperatura_promedio, iteracion = resolucion_por_jacobi(largo, ancho, TEMPERATURA_IZQUIERDA)
     graficar_plancha_temperaturas(x_temperatura_promedio, largo, TEMPERATURA_IZQUIERDA)
     return 0
+def crear_graficos_de_plancha_gauss(largo, ancho):
+    for i in range(len(HORARIOS)):
+        x = resolucion_por_gauss(largo, ancho, TEMPERATURAS[i])
+        graficar_plancha_temperaturas(x, largo, TEMPERATURAS[i])
 
+    x_temperatura_promedio = resolucion_por_gauss(largo, ancho, TEMPERATURA_IZQUIERDA)
+    graficar_plancha_temperaturas(x_temperatura_promedio, largo, TEMPERATURA_IZQUIERDA)
+    return 0
 '''.....................................................................................'''
 def crear_funcion_respecto_horario(largo, ancho):
     promedios_temperatura = []
@@ -284,6 +292,7 @@ def crear_funcion_respecto_horario(largo, ancho):
     plt.show()
 
     return 0
+
 '''.....................................................................................'''
 def mostrar_iteraciones_jacobi(largo, ancho):
     for i in range(len(HORARIOS)):
@@ -300,8 +309,10 @@ def mostrar_iteraciones_gauss_seidez(largo, ancho):
     x_temperatura_promedio, iteraciones = resolucion_por_gauss_seidez(largo, ancho, TEMPERATURA_IZQUIERDA)
     print(f"GS = Temperatura = {TEMPERATURA_IZQUIERDA}, iteraciones ={iteraciones}")
     return 0
+
+
 '''.....................................................................................'''
-def evaluar_tiempo_ejecucion(largo,ancho):
+def evaluar_tiempo_ejecucion_gauss_seidez(largo,ancho):
     start_time = time.time()
 
     for i in range(len(HORARIOS)):
@@ -311,22 +322,52 @@ def evaluar_tiempo_ejecucion(largo,ancho):
     elapsed_time = end_time - start_time
     return elapsed_time
 
-def graficar_grafico_costo_computacional():
+def evaluar_tiempo_ejecucion_jacobi(largo,ancho):
+    start_time = time.time()
+
+    for i in range(len(HORARIOS)):
+        x, iteraciones = resolucion_por_jacobi(largo, ancho, TEMPERATURAS[i])
+    x_temperatura_promedio, iteraciones = resolucion_por_jacobi(largo, ancho, TEMPERATURA_IZQUIERDA)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    return elapsed_time
+
+def graficar_grafico_costo_computacional_gauss_seidez():
     largo_placa_1 = calcular_dimencion(LARGO_PLANCHA, 1)
     ancho_placa_1 = calcular_dimencion(ANCHO_PLANCHA, 1)
     largo_placa_2 = calcular_dimencion(LARGO_PLANCHA, 0.5)
     ancho_placa_2 = calcular_dimencion(ANCHO_PLANCHA, 0.5)
     largo_placa_3 = calcular_dimencion(LARGO_PLANCHA, 0.4)
     ancho_placa_3 = calcular_dimencion(ANCHO_PLANCHA, 0.4)
-    tiempo_1 = evaluar_tiempo_ejecucion(largo_placa_1, ancho_placa_1)
-    tiempo_2 = evaluar_tiempo_ejecucion(largo_placa_2, ancho_placa_2)
-    tiempo_3 = evaluar_tiempo_ejecucion(largo_placa_3, ancho_placa_3)
+    tiempo_1 = evaluar_tiempo_ejecucion_gauss_seidez(largo_placa_1, ancho_placa_1)
+    tiempo_2 = evaluar_tiempo_ejecucion_gauss_seidez(largo_placa_2, ancho_placa_2)
+    tiempo_3 = evaluar_tiempo_ejecucion_gauss_seidez(largo_placa_3, ancho_placa_3)
     tiempos = [tiempo_1, tiempo_2, tiempo_3]
     etiquetas = ['D = 1cm', 'D = 0,5cm', 'D = 0,4cm']
     plt.bar(etiquetas, tiempos)
     plt.xlabel('Discretizacion')
     plt.ylabel('Tiempo de Ejecucion (segs)')
-    plt.title('Costo Computacional')
+    plt.title('Costo Computacional - Gauss Seidez')
+
+    plt.show()
+    return 0
+
+def graficar_grafico_costo_computacional_jacobi():
+    largo_placa_1 = calcular_dimencion(LARGO_PLANCHA, 1)
+    ancho_placa_1 = calcular_dimencion(ANCHO_PLANCHA, 1)
+    largo_placa_2 = calcular_dimencion(LARGO_PLANCHA, 0.5)
+    ancho_placa_2 = calcular_dimencion(ANCHO_PLANCHA, 0.5)
+    largo_placa_3 = calcular_dimencion(LARGO_PLANCHA, 0.4)
+    ancho_placa_3 = calcular_dimencion(ANCHO_PLANCHA, 0.4)
+    tiempo_1 = evaluar_tiempo_ejecucion_jacobi(largo_placa_1, ancho_placa_1)
+    tiempo_2 = evaluar_tiempo_ejecucion_jacobi(largo_placa_2, ancho_placa_2)
+    tiempo_3 = evaluar_tiempo_ejecucion_jacobi(largo_placa_3, ancho_placa_3)
+    tiempos = [tiempo_1, tiempo_2, tiempo_3]
+    etiquetas = ['D = 1cm', 'D = 0,5cm', 'D = 0,4cm']
+    plt.bar(etiquetas, tiempos)
+    plt.xlabel('Discretizacion')
+    plt.ylabel('Tiempo de Ejecucion (segs)')
+    plt.title('Costo Computacional - Jacobi')
 
     plt.show()
     return 0
@@ -334,15 +375,13 @@ def main ():
     largo_placa = calcular_dimencion(LARGO_PLANCHA, DISCRETIZACION)
     ancho_placa = calcular_dimencion(ANCHO_PLANCHA, DISCRETIZACION)
     placa_uno = crear_placa_inicial(largo_placa, ancho_placa,21)
-    #x = resolucion_por_gauss(largo_placa, ancho_placa)
-    crear_funcion_respecto_horario(largo_placa, ancho_placa)
-    crear_graficos_de_plancha(largo_placa, ancho_placa)
-    mostrar_iteraciones_gauss_seidez(largo_placa, ancho_placa)
-    mostrar_iteraciones_jacobi(largo_placa, ancho_placa)
-    evaluar_tiempo_ejecucion(largo_placa,ancho_placa)
-    graficar_grafico_costo_computacional()
-
-
+    #crear_funcion_respecto_horario(largo_placa, ancho_placa)
+    #crear_graficos_de_plancha(largo_placa, ancho_placa)
+    #crear_graficos_de_plancha_gauss(largo_placa, ancho_placa)
+    #mostrar_iteraciones_gauss_seidez(largo_placa, ancho_placa)
+    #mostrar_iteraciones_jacobi(largo_placa, ancho_placa)
+    graficar_grafico_costo_computacional_jacobi()
+    graficar_grafico_costo_computacional_gauss_seidez()
     return 0
 
 main ()
