@@ -15,7 +15,8 @@ TEMPERATURA_DERECHA = 72
 LARGO_PLANCHA = 5
 ANCHO_PLANCHA = 4
 DISCRETIZACION = 0.5
-TOLERANCIA = 0.0000001
+TOLERANCIA = 0.0000000001
+ELEMENTO_INICIAL = 1
 
 HORARIOS = [0,5,9,15,20,23]
 TEMPERATURAS = [26,21,29,37,31,24]
@@ -142,7 +143,7 @@ def crear_vector_b (largo, ancho, temperatura_izquierda):
 
 
 '''................................................................................'''
-
+'''
 def aplicar_eliminacion_gauseana (matriz, dimension, vector):
     A = np.array(matriz)
     b = np.array(vector)
@@ -173,6 +174,27 @@ def resolucion_por_gauss (largo, ancho, temperatura_izquierda):
     b_con_eliminacion = Ab[:, dimension]
     resultado = sustitucion_inversa(A_con_eliminacion, b_con_eliminacion, dimension)
     return resultado
+'''
+def resolucion_por_gauss (largo, ancho, temperatura_izquierda):
+
+    dimension = largo * ancho
+    A = np.array(crear_matriz_A(largo, ancho),dtype=np.float64)
+    b = np.array(crear_vector_b(largo, ancho, temperatura_izquierda), dtype=np.float64)
+
+    for i in range(dimension):
+        max_index = np.argmax(abs(A[i:, i])) + i
+        A[[i, max_index]] = A[[max_index, i]]
+        b[[i, max_index]] = b[[max_index, i]]
+        for j in range(i + 1, dimension):
+            factor = A[j, i] / A[i, i]
+            A[j, i:] -= factor * A[i, i:]
+            b[j] -= factor * b[i]
+
+    x = np.zeros(dimension)
+    for i in range(dimension - 1, -1, -1):
+        x[i] = (b[i] - np.dot(A[i, i + 1:], x[i + 1:])) / A[i, i]
+
+    return x
 
 '''.....................................................................................'''
 def crear_solucion_inicial (dimension, elemento):
@@ -201,7 +223,7 @@ def resolucion_por_jacobi (largo, ancho, temperatura_izquierda):
     dimension = largo * ancho
     A = crear_matriz_A(largo, ancho)
     b = crear_vector_b(largo, ancho, temperatura_izquierda)
-    x0 = crear_solucion_inicial (dimension, 0)
+    x0 = crear_solucion_inicial (dimension, ELEMENTO_INICIAL)
     tolerancia = TOLERANCIA
     tolerancia_iteraciones = 100000000
     x, iteraciones = aplicar_metodo_jacobi(A, b, x0, tolerancia, tolerancia_iteraciones, dimension)
@@ -228,7 +250,7 @@ def resolucion_por_gauss_seidez(largo, ancho, temperatura_izquierda):
     dimension = largo * ancho
     A = crear_matriz_A(largo, ancho)
     b = crear_vector_b(largo, ancho, temperatura_izquierda)
-    x0 = crear_solucion_inicial(dimension, 0)
+    x0 = crear_solucion_inicial(dimension, ELEMENTO_INICIAL)
     tolerancia = TOLERANCIA
     tolerancia_iteraciones = 10000000000
     x , iteraciones = aplicar_metodo_gauss_seidez(A, b, x0, tolerancia, tolerancia_iteraciones, dimension)
@@ -376,12 +398,17 @@ def main ():
     ancho_placa = calcular_dimencion(ANCHO_PLANCHA, DISCRETIZACION)
     placa_uno = crear_placa_inicial(largo_placa, ancho_placa,21)
     #crear_funcion_respecto_horario(largo_placa, ancho_placa)
-    #crear_graficos_de_plancha(largo_placa, ancho_placa)
-    #crear_graficos_de_plancha_gauss(largo_placa, ancho_placa)
+    crear_graficos_de_plancha(largo_placa, ancho_placa)
+    crear_graficos_de_plancha_gauss(largo_placa, ancho_placa)
     #mostrar_iteraciones_gauss_seidez(largo_placa, ancho_placa)
     #mostrar_iteraciones_jacobi(largo_placa, ancho_placa)
-    graficar_grafico_costo_computacional_jacobi()
-    graficar_grafico_costo_computacional_gauss_seidez()
+    #graficar_grafico_costo_computacional_jacobi()
+    #graficar_grafico_costo_computacional_gauss_seidez()
+    j, i = resolucion_por_jacobi(largo_placa, ancho_placa, TEMPERATURA_IZQUIERDA)
+    gs, i = resolucion_por_gauss_seidez(largo_placa, ancho_placa, TEMPERATURA_IZQUIERDA)
+    eg = resolucion_por_gauss(largo_placa, ancho_placa, TEMPERATURA_IZQUIERDA)
+    imprimir_plancha(j, ancho_placa, largo_placa)
+    imprimir_plancha(eg,ancho_placa, largo_placa)
     return 0
 
 main ()
