@@ -486,8 +486,7 @@ def main ():
     ancho_placa = calcular_dimencion(ANCHO_PLANCHA, DISCRETIZACION)
     placa_uno = crear_placa_inicial(largo_placa, ancho_placa,21)
     #crear_funcion_respecto_horario(largo_placa, ancho_placa)
-    carpeta = PATH_CARPETA
-    crear_graficos_de_plancha(largo_placa, ancho_placa, carpeta)
+    #crear_graficos_de_plancha(largo_placa, ancho_placa, PATH_CARPETA)
     #crear_graficos_de_plancha_gauss(largo_placa, ancho_placa)
     #mostrar_iteraciones_gauss_seidez(largo_placa, ancho_placa)
     #mostrar_iteraciones_jacobi(largo_placa, ancho_placa)
