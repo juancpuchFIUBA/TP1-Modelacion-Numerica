@@ -45,7 +45,7 @@ ancho_resultante = 1280
 altura_resultante = 960
 
 # Iterar sobre las 24 imágenes
-for i in range(24):
+for i in range(25):
     # Rutas de las imágenes de cada carpeta
     ruta_discretizacion1 = os.path.join(directorio_actual, 'discretizacion1', f'im{i}.png')
     ruta_discretizacion2 = os.path.join(directorio_actual, 'discretizacion2', f'im{i}.png')

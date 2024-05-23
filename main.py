@@ -18,6 +18,7 @@ ANCHO_PLANCHA = 4
 DISCRETIZACION = 0.4
 TOLERANCIA = 0.000000001
 ELEMENTO_INICIAL = 0.1
+PATH_CARPETA = 'discretizacion3'
 
 HORARIOS = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
 TEMPERATURAS = [26,25,24,23,22,21,23,25,27,29,29+8/6,29+8*2/6,29+8*3/6,29+8*4/6,29+8*5/6,37,37-6/5,37-6*2/5,37-6*3/5,37-6*4/5,31,31-7/3,31-7*2/3,24]
@@ -263,8 +264,8 @@ def resolucion_por_gauss_seidez(largo, ancho, temperatura_izquierda):
 '''.....................................................................................'''
 def dividir_vector(vector, largo):
     return [vector[i:i+largo] for i in range(0, len(vector), largo)]
-'''
-def graficar_plancha_temperaturas(vector_resultado, largo, temperatura):
+
+def graficar_plancha_temperaturas_con_indicador(vector_resultado, largo, temperatura):
     matriz_placa = dividir_vector(vector_resultado, largo)
     matriz = np.array(matriz_placa)
     if (DISCRETIZACION >= 0.5):
@@ -279,51 +280,50 @@ def graficar_plancha_temperaturas(vector_resultado, largo, temperatura):
     plt.text(matriz.shape[1] / 2, -1.5, f'Discretización = {DISCRETIZACION} cm', ha='center')
     plt.show()
     return 0
-'''
 
 '''.....................................................................................'''
 
 
-def graficar_plancha_temperaturas(vector_resultado, largo, temperatura, horario):
+def graficar_plancha_temperaturas(vector_resultado, largo, temperatura, horario, carpeta):
     matriz_placa = dividir_vector(vector_resultado, largo)
     matriz = np.array(matriz_placa)
-    if (DISCRETIZACION >= 0.5):
-        for i in range(matriz.shape[0]):
-            for j in range(matriz.shape[1]):
-                plt.text(j, i, f'{matriz[i, j]:.0f}', ha='center', va='center', color='white')
 
     plt.imshow(matriz, cmap='viridis', interpolation='nearest')
     plt.colorbar()
     plt.axis('off')
-    plt.text(matriz.shape[1] / 2, -0.7, f'Temperatura ambiente = {temperatura:.2f}°C', ha='center')
-    plt.text(matriz.shape[1] / 2, -1.5, f'Discretización = {DISCRETIZACION} cm', ha='center')
+    texto = f'D = {DISCRETIZACION} cm  T = {temperatura:.2f}°C'
+    plt.text(matriz.shape[1] / 2, -12.5 + matriz.shape[0], texto , ha='center', fontsize=12)
 
-    # Comprobamos si la carpeta existe, si no, la creamos
-    if not os.path.exists('discretizacion3'):
-        os.makedirs('discretizacion3')
+    if not os.path.exists(carpeta):
+        os.makedirs(carpeta)
 
-    # Guardar la figura en la carpeta "discretizacion1"
-    plt.savefig(f'discretizacion3/im{horario}.png')
+    plt.savefig(f'{carpeta}/im{horario}.png')
 
-    # Cerrar la figura para liberar recursos
     plt.close()
 
     return 0
 '''.....................................................................................'''
-
-
-def crear_graficos_de_plancha (largo, ancho):
+def crear_graficos_de_plancha_sin_guardar (largo, ancho):
 
     for i in range(len(HORARIOS)):
         x, iteracion = resolucion_por_jacobi(largo, ancho, TEMPERATURAS[i])
-        graficar_plancha_temperaturas(x,largo, TEMPERATURAS[i], i)
+        graficar_plancha_temperaturas_con_indicador(x,largo, TEMPERATURAS[i])
     x_temperatura_promedio, iteracion = resolucion_por_jacobi(largo, ancho, TEMPERATURA_IZQUIERDA)
-    graficar_plancha_temperaturas(x_temperatura_promedio, largo, TEMPERATURA_IZQUIERDA, i+1)
+    graficar_plancha_temperaturas_con_indicador(x_temperatura_promedio, largo, TEMPERATURA_IZQUIERDA)
+    return 0
+
+def crear_graficos_de_plancha (largo, ancho, path_carpeta):
+
+    for i in range(len(HORARIOS)):
+        x, iteracion = resolucion_por_jacobi(largo, ancho, TEMPERATURAS[i])
+        graficar_plancha_temperaturas(x,largo, TEMPERATURAS[i], i, path_carpeta)
+    x_temperatura_promedio, iteracion = resolucion_por_jacobi(largo, ancho, TEMPERATURA_IZQUIERDA)
+    graficar_plancha_temperaturas(x_temperatura_promedio, largo, TEMPERATURA_IZQUIERDA, i+1, path_carpeta)
     return 0
 def crear_graficos_de_plancha_gauss(largo, ancho):
     for i in range(len(HORARIOS)):
         x = resolucion_por_gauss(largo, ancho, TEMPERATURAS[i])
-        graficar_plancha_temperaturas(x, largo, TEMPERATURAS[i],i)
+        graficar_plancha_temperaturas(x, largo, TEMPERATURAS[i], i)
 
     x_temperatura_promedio = resolucion_por_gauss(largo, ancho, TEMPERATURA_IZQUIERDA)
     graficar_plancha_temperaturas(x_temperatura_promedio, largo, TEMPERATURA_IZQUIERDA, i+1)
@@ -486,7 +486,8 @@ def main ():
     ancho_placa = calcular_dimencion(ANCHO_PLANCHA, DISCRETIZACION)
     placa_uno = crear_placa_inicial(largo_placa, ancho_placa,21)
     #crear_funcion_respecto_horario(largo_placa, ancho_placa)
-    crear_graficos_de_plancha(largo_placa, ancho_placa)
+    carpeta = PATH_CARPETA
+    crear_graficos_de_plancha(largo_placa, ancho_placa, carpeta)
     #crear_graficos_de_plancha_gauss(largo_placa, ancho_placa)
     #mostrar_iteraciones_gauss_seidez(largo_placa, ancho_placa)
     #mostrar_iteraciones_jacobi(largo_placa, ancho_placa)
