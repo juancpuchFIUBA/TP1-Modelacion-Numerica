@@ -394,8 +394,8 @@ def evaluar_tiempo_ejecucion_gauss(largo,ancho):
     start_time = time.time()
 
     for i in range(len(HORARIOS)):
-        x = resolucion_por_gauss(largo, ancho, TEMPERATURAS[i])
-    x_temperatura_promedio = resolucion_por_gauss(largo, ancho, TEMPERATURA_IZQUIERDA)
+         resolucion_por_gauss(largo, ancho, TEMPERATURAS[i])
+    resolucion_por_gauss(largo, ancho, TEMPERATURA_IZQUIERDA)
     end_time = time.time()
     elapsed_time = end_time - start_time
     return elapsed_time
@@ -404,8 +404,8 @@ def evaluar_tiempo_ejecucion_gauss_seidez(largo,ancho):
     start_time = time.time()
 
     for i in range(len(HORARIOS)):
-        x, iteraciones = resolucion_por_gauss_seidez(largo, ancho, TEMPERATURAS[i])
-    x_temperatura_promedio, iteraciones = resolucion_por_gauss_seidez(largo, ancho, TEMPERATURA_IZQUIERDA)
+        resolucion_por_gauss_seidez(largo, ancho, TEMPERATURAS[i])
+    resolucion_por_gauss_seidez(largo, ancho, TEMPERATURA_IZQUIERDA)
     end_time = time.time()
     elapsed_time = end_time - start_time
     return elapsed_time
